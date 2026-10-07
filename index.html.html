@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard de Chamados - Regionais</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: #1e1e1e;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            padding: 30px 20px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 15px;
+        }
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            background-color: #2a2a2a;
+            color: #ffffff;
+            border: 1px solid #444;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: all 0.3s;
+        }
+        .tab-btn:hover { background-color: #3a3a3a; }
+        .tab-btn.active { background-color: #3b82f6; border-color: #3b82f6; }
+
+        .mes-container {
+            margin-bottom: 60px;
+            padding-bottom: 30px;
+            border-bottom: 1px dashed #444;
+            display: none;
+        }
+        .mes-container.visivel { display: block; }
+        
+        .mes-titulo {
+            text-align: center;
+            font-size: 22px;
+            color: #3b82f6;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        .ordenacao-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        .ordenacao-label {
+            font-size: 13px;
+            color: #aaa;
+            text-transform: uppercase;
+        }
+        .btn-ordem {
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 6px 15px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        .btn-ordem:hover { background-color: #444; }
+        .btn-ordem.ativo {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+            font-weight: bold;
+        }
+        .chart-container {
+            width: 95%;
+            max-width: 1100px;
+            margin: 0 auto 30px auto;
+            background-color: #252525;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        h2 {
+            text-align: center;
+            font-size: 15px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            color: #cccccc;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Dashboard de Chamados - Regionais</h1>
+
+    <!-- Abas de Filtro -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="filtrarMes(event, 'todos')">📋 Todos os Meses</button>
+        <button class="tab-btn" onclick="filtrarMes(event, 'junho')">Junho/26</button>
+        <button class="tab-btn" onclick="filtrarMes(event, 'julho')">Julho/26</button>
+        <button class="tab-btn" onclick="filtrarMes(event, 'agosto')">Agosto/26</button>
+        <button class="tab-btn" onclick="filtrarMes(event, 'setembro')">Setembro/26</button>
+    </div>
+
+    <!-- ================= MÊS: JUNHO ================= -->
+    <div id="junho" class="mes-container visivel">
+        <div class="mes-titulo">📅 Junho/26</div>
+        <div class="ordenacao-container">
+            <span class="ordenacao-label">Ordenar por:</span>
+            <button class="btn-ordem ativo" onclick="mudarOrdem('junho', 'alfabetica', event)">Alfabética</button>
+            <button class="btn-ordem" onclick="mudarOrdem('junho', 'taxa', event)">Taxa de Conclusão</button>
+        </div>
+        <div class="chart-container">
+            <h2>Chamados Abertos x Encerrados (Corretivas) - Junho/26</h2>
+            <canvas id="junhoCorretivas"></canvas>
+        </div>
+        <div class="chart-container">
+            <h2>Chamados Abertos x Encerrados (Preventivas) - Junho/26</h2>
+            <canvas id="junhoPreventivas"></canvas>
+        </div>
+    </div>
+
+    <!-- ================= MÊS: JULHO ================= -->
+    <div id="julho" class="mes-container visivel">
+        <div class="mes-titulo">📅 Julho/26</div>
+        <div class="ordenacao-container">
+            <span class="ordenacao-label">Ordenar por:</span>
+            <button class="btn-ordem ativo" onclick="mudarOrdem('julho', 'alfabetica', event)">Alfabética</button>
+            <button class="btn-ordem" onclick="mudarOrdem('julho', 'taxa', event)">Taxa de Conclusão</button>
+        </div>
+        <div class="chart-container">
+            <h2>Chamados Abertos x Encerrados (Corretivas) - Julho/26</h2>
+            <canvas id="julhoCorretivas"></canvas>
+        </div>
+        <div class="chart-container">
+            <h2>Chamados Abertos x Encerrados (Preventivas) - Julho/26</h2>
+            <canvas id="julhoPreventivas"></canvas>
+        </div>
+    </div>
+
+    <!-- ================= MÊS: AGOSTO ================= -->
+    <div id="agosto" class="mes-container visivel">
+        <div class="mes-titulo">📅 Agosto/26</div>
+        <div class="ordenacao-container">
+            <span class="ordenacao-label">Ordenar por:</span>
+            <button class="btn-ordem ativo" onclick="mudarOrdem('agosto', 'alfabetica', event)">Alfabética</button>
+            <button class="btn-ordem" onclick="mudarOrdem('agosto', 'taxa', event)">Taxa de Conclusão</button>
+        </div>
+        <div class="chart-container">
+            <h2>Chamados Abertos x Encerrados (Corretivas) - Agosto/26</h2>
+            <canvas id="agostoCorretivas"></canvas>
+        </div>
+        <div class="chart-container">
+            <h2>Chamados Abertos x Encerrados (Preventivas) - Agosto/26</h2>
+            <canvas id="agostoPreventivas"></canvas>
+        </div>
+    </div>
+
+    <!-- ================= MÊS: SETEMBRO ================= -->
+    <div id="setembro" class="mes-container visivel">
+        <div class="mes-titulo">📅 Setembro/26</div>
+        <div class="ordenacao-container">
+            <span class="ordenacao-label">Ordenar por:</span>
+            <button class="btn-ordem ativo" onclick="mudarOrdem('setembro', 'alfabetica', event)">Alfabética</button>
+            <button class="btn-ordem" onclick="mudarOrdem('setembro', 'taxa', event)">Taxa de Conclusão</button>
+        </div>
+        <div class="chart-container">
+            <h2>Chamados Abertos x Encerrados (Corretivas) - Setembro/26</h2>
+            <canvas id="setembroCorretivas"></canvas>
+        </div>
+        <div class="chart-container">
+            <h2>Chamados Abertos x Encerrados (Preventivas) - Setembro/26</h2>
+            <canvas id="setembroPreventivas"></canvas>
+        </div>
+    </div>
+
+    <script>
+        Chart.defaults.color = '#ffffff';
+        Chart.defaults.borderColor = '#444444';
+        const COR_AZUL = '#3b82f6';
+        const COR_LARANJA = '#f97316';
+
+        // ========== BASE DE DADOS ==========
+        const bancoDados = {
+            junho: {
+                corretivas: [
+                    { nome: 'ADEMIR', taxa: 71, abertos: 17, encerrados: 12 },
+                    { nome: 'CICERO', taxa: 91, abertos: 35, encerrados: 32 },
+                    { nome: 'DIEGO', taxa: 100, abertos: 22, encerrados: 22 },
+                    { nome: 'EVERTON', taxa: 72, abertos: 32, encerrados: 23 },
+                    { nome: 'LEANDRO', taxa: 69, abertos: 32, encerrados: 22 },
+                    { nome: 'URIEL', taxa: 95, abertos: 19, encerrados: 18 }
+                ],
+                preventivas: [
+                    { nome: 'ADEMIR', taxa: 0, abertos: 0, encerrados: 0 },
+                    { nome: 'CICERO', taxa: 100, abertos: 1, encerrados: 1 },
+                    { nome: 'DIEGO', taxa: 100, abertos: 5, encerrados: 5 },
+                    { nome: 'EVERTON', taxa: 0, abertos: 5, encerrados: 0 },
+                    { nome: 'LEANDRO', taxa: 100, abertos: 2, encerrados: 2 },
+                    { nome: 'URIEL', taxa: 0, abertos: 1, encerrados: 0 }
+                ]
+            },
+            julho: {
+                corretivas: [
+                    { nome: 'ADEMIR', taxa: 95, abertos: 19, encerrados: 18 },
+                    { nome: 'CICERO', taxa: 100, abertos: 35, encerrados: 35 },
+                    { nome: 'DIEGO', taxa: 65, abertos: 17, encerrados: 11 },
+                    { nome: 'EVERTON', taxa: 65, abertos: 40, encerrados: 26 },
+                    { nome: 'LEANDRO', taxa: 61, abertos: 18, encerrados: 11 },
+                    { nome: 'URIEL', taxa: 81, abertos: 27, encerrados: 22 }
+                ],
+                preventivas: [
+                    { nome: 'ADEMIR', taxa: 54, abertos: 13, encerrados: 7 },
+                    { nome: 'CICERO', taxa: 100, abertos: 31, encerrados: 31 },
+                    { nome: 'DIEGO', taxa: 100, abertos: 17, encerrados: 17 },
+                    { nome: 'EVERTON', taxa: 0, abertos: 22, encerrados: 0 },
+                    { nome: 'LEANDRO', taxa: 100, abertos: 22, encerrados: 22 },
+                    { nome: 'URIEL', taxa: 0, abertos: 22, encerrados: 0 }
+                ]
+            },
+            agosto: {
+                corretivas: [
+                    { nome: 'ADEMIR', taxa: 90, abertos: 20, encerrados: 18 },
+                    { nome: 'CICERO', taxa: 76, abertos: 30, encerrados: 23 },
+                    { nome: 'DIEGO', taxa: 74, abertos: 23, encerrados: 17 },
+                    { nome: 'EVERTON', taxa: 68, abertos: 28, encerrados: 19 },
+                    { nome: 'JEFFERSON', taxa: 34, abertos: 55, encerrados: 19 },
+                    { nome: 'LEANDRO', taxa: 61, abertos: 26, encerrados: 16 }
+                ],
+                preventivas: [
+                    { nome: 'ADEMIR', taxa: 100, abertos: 22, encerrados: 22 },
+                    { nome: 'CICERO', taxa: 95, abertos: 22, encerrados: 21 },
+                    { nome: 'DIEGO', taxa: 86, abertos: 21, encerrados: 18 },
+                    { nome: 'EVERTON', taxa: 35, abertos: 31, encerrados: 11 },
+                    { nome: 'JEFFERSON', taxa: 25, abertos: 4, encerrados: 1 },
+                    { nome: 'LEANDRO', taxa: 93, abertos: 29, encerrados: 27 }
+                ]
+            },
+            setembro: {
+                corretivas: [
+                    { nome: 'ADEMIR', taxa: 93, abertos: 30, encerrados: 28 },
+                    { nome: 'CICERO', taxa: 87, abertos: 39, encerrados: 34 },
+                    { nome: 'DIEGO', taxa: 79, abertos: 38, encerrados: 30 },
+                    { nome: 'EVERTON', taxa: 53, abertos: 30, encerrados: 16 },
+                    { nome: 'JEFFERSON', taxa: 22, abertos: 58, encerrados: 13 },
+                    { nome: 'LEANDRO', taxa: 85, abertos: 40, encerrados: 34 }
+                ],
+                preventivas: [
+                    { nome: 'ADEMIR', taxa: 100, abertos: 28, encerrados: 28 },
+                    { nome: 'CICERO', taxa: 82, abertos: 22, encerrados: 18 },
+                    { nome: 'DIEGO', taxa: 78, abertos: 18, encerrados: 14 },
+                    { nome: 'EVERTON', taxa: 48, abertos: 23, encerrados: 11 },
+                    { nome: 'JEFFERSON', taxa: 29, abertos: 14, encerrados: 4 },
+                    { nome: 'LEANDRO', taxa: 93, abertos: 30, encerrados: 28 }
+                ]
+            }
+        };
+
+        const graficos = {};
+
+        function criarGrafico(idCanvas, dados) {
+            const ctx = document.getElementById(idCanvas).getContext('2d');
+            graficos[idCanvas] = new Chart(ctx, {
+                type: 'bar',
+                data: dados,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#ffffff', padding: 20, font: { size: 13 } }
+                        },
+                        tooltip: { mode: 'index', intersect: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#333333' },
+                            ticks: { color: '#ffffff', stepSize: 5 }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#ffffff', font: { size: 11, weight: 'bold' } }
+                        }
+                    },
+                    animation: {
+                        onComplete: function() {
+                            const chartInstance = this;
+                            const ctx = chartInstance.ctx;
+                            ctx.font = Chart.helpers.fontString(11, 'bold', 'Arial');
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'bottom';
+                            ctx.fillStyle = '#ffffff';
+                            chartInstance.data.datasets.forEach(function(dataset, i) {
+                                const meta = chartInstance.getDatasetMeta(i);
+                                meta.data.forEach(function(bar, index) {
+                                    const data = dataset.data[index];
+                                    if (data > 0) ctx.fillText(data, bar.x, bar.y - 3);
+                                });
+                            });
+                        }
+                    }
+                }
+            });
+        }
+
+        function atualizarGrafico(idCanvas, listaDados, tipoOrdenacao) {
+            let dadosOrdenados = [...listaDados];
+            if (tipoOrdenacao === 'alfabetica') {
+                dadosOrdenados.sort((a, b) => a.nome.localeCompare(b.nome));
+            } else if (tipoOrdenacao === 'taxa') {
+                dadosOrdenados.sort((a, b) => {
+                    if (b.taxa !== a.taxa) return b.taxa - a.taxa;
+                    return a.nome.localeCompare(b.nome);
+                });
+            }
+            graficos[idCanvas].data.labels = dadosOrdenados.map(d => [`${d.nome}`, `(${d.taxa}%)`]);
+            graficos[idCanvas].data.datasets[0].data = dadosOrdenados.map(d => d.abertos);
+            graficos[idCanvas].data.datasets[1].data = dadosOrdenados.map(d => d.encerrados);
+            graficos[idCanvas].update();
+        }
+
+        // ========== RENDERIZAR TUDO ==========
+        // Junho
+        criarGrafico('junhoCorretivas', { labels: [], datasets: [{ label: 'Abertos', data: [], backgroundColor: COR_AZUL }, { label: 'Encerrados', data: [], backgroundColor: COR_LARANJA }] });
+        criarGrafico('junhoPreventivas', { labels: [], datasets: [{ label: 'Abertos', data: [], backgroundColor: COR_AZUL }, { label: 'Encerrados', data: [], backgroundColor: COR_LARANJA }] });
+        atualizarGrafico('junhoCorretivas', bancoDados.junho.corretivas, 'alfabetica');
+        atualizarGrafico('junhoPreventivas', bancoDados.junho.preventivas, 'alfabetica');
+
+        // Julho
+        criarGrafico('julhoCorretivas', { labels: [], datasets: [{ label: 'Abertos', data: [], backgroundColor: COR_AZUL }, { label: 'Encerrados', data: [], backgroundColor: COR_LARANJA }] });
+        criarGrafico('julhoPreventivas', { labels: [], datasets: [{ label: 'Abertos', data: [], backgroundColor: COR_AZUL }, { label: 'Encerrados', data: [], backgroundColor: COR_LARANJA }] });
+        atualizarGrafico('julhoCorretivas', bancoDados.julho.corretivas, 'alfabetica');
+        atualizarGrafico('julhoPreventivas', bancoDados.julho.preventivas, 'alfabetica');
+
+        // Agosto
+        criarGrafico('agostoCorretivas', { labels: [], datasets: [{ label: 'Abertos', data: [], backgroundColor: COR_AZUL }, { label: 'Encerrados', data: [], backgroundColor: COR_LARANJA }] });
+        criarGrafico('agostoPreventivas', { labels: [], datasets: [{ label: 'Abertos', data: [], backgroundColor: COR_AZUL }, { label: 'Encerrados', data: [], backgroundColor: COR_LARANJA }] });
+        atualizarGrafico('agostoCorretivas', bancoDados.agosto.corretivas, 'alfabetica');
+        atualizarGrafico('agostoPreventivas', bancoDados.agosto.preventivas, 'alfabetica');
+
+        // Setembro
+        criarGrafico('setembroCorretivas', { labels: [], datasets: [{ label: 'Abertos', data: [], backgroundColor: COR_AZUL }, { label: 'Encerrados', data: [], backgroundColor: COR_LARANJA }] });
+        criarGrafico('setembroPreventivas', { labels: [], datasets: [{ label: 'Abertos', data: [], backgroundColor: COR_AZUL }, { label: 'Encerrados', data: [], backgroundColor: COR_LARANJA }] });
+        atualizarGrafico('setembroCorretivas', bancoDados.setembro.corretivas, 'alfabetica');
+        atualizarGrafico('setembroPreventivas', bancoDados.setembro.preventivas, 'alfabetica');
+
+        // ========== INTERAÇÃO ==========
+        function filtrarMes(event, mesSelecionado) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            const meses = document.querySelectorAll('.mes-container');
+            if (mesSelecionado === 'todos') {
+                meses.forEach(m => m.classList.add('visivel'));
+            } else {
+                meses.forEach(m => m.classList.remove('visivel'));
+                document.getElementById(mesSelecionado).classList.add('visivel');
+            }
+        }
+
+        function mudarOrdem(mes, tipoOrdenacao, event) {
+            const container = event.currentTarget.parentElement;
+            container.querySelectorAll('.btn-ordem').forEach(b => b.classList.remove('ativo'));
+            event.currentTarget.classList.add('ativo');
+
+            if (mes === 'junho') {
+                atualizarGrafico('junhoCorretivas', bancoDados.junho.corretivas, tipoOrdenacao);
+                atualizarGrafico('junhoPreventivas', bancoDados.junho.preventivas, tipoOrdenacao);
+            } else if (mes === 'julho') {
+                atualizarGrafico('julhoCorretivas', bancoDados.julho.corretivas, tipoOrdenacao);
+                atualizarGrafico('julhoPreventivas', bancoDados.julho.preventivas, tipoOrdenacao);
+            } else if (mes === 'agosto') {
+                atualizarGrafico('agostoCorretivas', bancoDados.agosto.corretivas, tipoOrdenacao);
+                atualizarGrafico('agostoPreventivas', bancoDados.agosto.preventivas, tipoOrdenacao);
+            } else if (mes === 'setembro') {
+                atualizarGrafico('setembroCorretivas', bancoDados.setembro.corretivas, tipoOrdenacao);
+                atualizarGrafico('setembroPreventivas', bancoDados.setembro.preventivas, tipoOrdenacao);
+            }
+        }
+    </script>
+</body>
+</html>
